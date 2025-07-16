@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Hotel_Booking_App</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="service\NewFolder - Copy %282%29\**" />
+    <Compile Remove="service\NewFolder - Copy %283%29\**" />
+    <Compile Remove="service\NewFolder - Copy\**" />
+    <Content Remove="service\NewFolder - Copy %282%29\**" />
+    <Content Remove="service\NewFolder - Copy %283%29\**" />
+    <Content Remove="service\NewFolder - Copy\**" />
+    <EmbeddedResource Remove="service\NewFolder - Copy %282%29\**" />
+    <EmbeddedResource Remove="service\NewFolder - Copy %283%29\**" />
+    <EmbeddedResource Remove="service\NewFolder - Copy\**" />
+    <None Remove="service\NewFolder - Copy %282%29\**" />
+    <None Remove="service\NewFolder - Copy %283%29\**" />
+    <None Remove="service\NewFolder - Copy\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\beecom\source\repos\Hotel Booking App\Controllers\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\beecom\source\repos\Hotel Booking App\Controllers\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="NewFolder\" />
+  </ItemGroup>
+
+</Project>
