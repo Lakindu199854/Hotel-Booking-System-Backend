@@ -20,7 +20,7 @@ public class BookingServiceImpl : IBookingService
             for (int i = 0; i < booking.RecurrenceCount.Value; i++)
             {
                 // Check for overlap before adding
-                if (IsOverlappingBooking(booking.RoomId, currentCheckIn, currentCheckOut))
+                if (IsOverlappingBooking(booking.RoomId.RoomId, currentCheckIn, currentCheckOut))
                 {
                     throw new InvalidOperationException($"Room {booking.RoomId} is already booked between {currentCheckIn} and {currentCheckOut}");
                 }
@@ -67,7 +67,7 @@ public class BookingServiceImpl : IBookingService
         else
         {
             // Single booking
-            if (IsOverlappingBooking(booking.RoomId, booking.CheckInDate, booking.CheckOutDate))
+            if (IsOverlappingBooking(booking.RoomId.RoomId, booking.CheckInDate, booking.CheckOutDate))
             {
                 throw new InvalidOperationException($"Room {booking.RoomId} is already booked between {booking.CheckInDate} and {booking.CheckOutDate}");
             }
@@ -93,7 +93,7 @@ public class BookingServiceImpl : IBookingService
     private bool IsOverlappingBooking(int roomId, DateTime checkIn, DateTime checkOut)
     {
         return Bookings.Any(b =>
-            b.RoomId == roomId &&
+            b.RoomId.RoomId == roomId &&
             b.CheckInDate < checkOut &&
             b.CheckOutDate > checkIn
         );

@@ -1,4 +1,4 @@
-using Hotel_Booking_App.GlobalExceptionMiddleware;
+using HotelBookingAPI.ExceptionHandlerGlobalExceptionMiddleware;
 using Hotel_Booking_App.Service.ChatService;
 using HotelBookingAPI.Service.BookingService;
 using HotelBookingAPI.Service.CustomerService;

@@ -1,5 +1,6 @@
 ﻿using Hotel_Booking_App.ExceptionHanlder;
 using System.Text.Json;
+namespace HotelBookingAPI.ExceptionHandlerGlobalExceptionMiddleware;
 
 public class GlobalExceptionMiddleware
 {

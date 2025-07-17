@@ -34,7 +34,7 @@ public class RoomServiceImpl : IRoomService
         var bookedRoomIds = allBookings
             .Where(b =>
                 !(b.CheckOutDate <=checkIn || b.CheckInDate >= checkOut)) // overlaps
-            .Select(b => b.RoomId)
+            .Select(b => b.RoomId.RoomId)
             .ToHashSet();
 
         return Rooms.Where(r => !bookedRoomIds.Contains(r.RoomId)).ToList();

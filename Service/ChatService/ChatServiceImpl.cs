@@ -104,7 +104,7 @@
 
             var bookedRoomIds = bookings
                 .Where(b => b.CheckInDate < date && b.CheckOutDate > date)
-                .Select(b => b.RoomId)
+                .Select(b => b.RoomId.RoomId)
                 .ToList();
 
             var availableRooms = allRooms
