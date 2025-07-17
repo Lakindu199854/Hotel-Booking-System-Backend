@@ -6,9 +6,9 @@ namespace HotelBookingAPI.Service.RoomService;
 
 public class RoomServiceImpl : IRoomService
 {
-    private readonly IBookingService _bookingService;
+    private readonly IBookingReaderService _bookingService;
 
-    public RoomServiceImpl(IBookingService bookingService)
+    public RoomServiceImpl(IBookingReaderService bookingService)
     {
         _bookingService = bookingService;
     }

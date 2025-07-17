@@ -1,16 +1,33 @@
 ﻿using HotelBookingAPI.model;
+using Hotel_Booking_App.Dto;
+using HotelBookingAPI.Service.RoomService;
+using HotelBookingAPI.Service.CustomerService;
 
 namespace HotelBookingAPI.Service.BookingService;
 
-public class BookingServiceImpl : IBookingService
+
+
+public class BookingServiceImpl : IBookingService,IBookingReaderService
 {
+
+    private readonly IRoomService _roomService;
+    private readonly ICustomerService _customerService;
+
+
+
     private List<Booking> Bookings = new();
 
     public List<Booking> GetAll() => Bookings;
 
     public Booking? GetById(int id) => Bookings.FirstOrDefault(b => b.BookingId == id);
 
-    public void Add(Booking booking)
+    public BookingServiceImpl(IRoomService roomService, ICustomerService customerService)
+    {
+        _roomService = roomService;
+        _customerService = customerService;
+    }
+
+    public void Add(CreateBookingDTO booking)
     {
         if (booking.IsRecurring && booking.RecurrenceCount.HasValue && !string.IsNullOrEmpty(booking.RecurrenceType))
         {
@@ -20,7 +37,7 @@ public class BookingServiceImpl : IBookingService
             for (int i = 0; i < booking.RecurrenceCount.Value; i++)
             {
                 // Check for overlap before adding
-                if (IsOverlappingBooking(booking.RoomId.RoomId, currentCheckIn, currentCheckOut))
+                if (IsOverlappingBooking(booking.RoomId, currentCheckIn, currentCheckOut))
                 {
                     throw new InvalidOperationException($"Room {booking.RoomId} is already booked between {currentCheckIn} and {currentCheckOut}");
                 }
@@ -28,8 +45,8 @@ public class BookingServiceImpl : IBookingService
                 var newBooking = new Booking
                 {
                     BookingId = Bookings.Count + 1,
-                    RoomId = booking.RoomId,
-                    CustomerId = booking.CustomerId,
+                    RoomId = getRoomById(booking.RoomId),
+                    CustomerId = getCustomerById(booking.CustomerId),
                     CheckInDate = currentCheckIn,
                     CheckOutDate = currentCheckOut,
                     IsRecurring = true,
@@ -67,13 +84,35 @@ public class BookingServiceImpl : IBookingService
         else
         {
             // Single booking
-            if (IsOverlappingBooking(booking.RoomId.RoomId, booking.CheckInDate, booking.CheckOutDate))
+            if (IsOverlappingBooking(booking.RoomId, booking.CheckInDate, booking.CheckOutDate))
             {
                 throw new InvalidOperationException($"Room {booking.RoomId} is already booked between {booking.CheckInDate} and {booking.CheckOutDate}");
             }
 
-            booking.BookingId = Bookings.Count + 1;
-            Bookings.Add(booking);
+            Customer cust=getCustomerById(booking.CustomerId);
+            Room room=getRoomById(booking.RoomId);
+
+            var currentCheckIn = booking.CheckInDate;
+            var currentCheckOut = booking.CheckOutDate;
+
+            var newBooking = new Booking
+            {
+                BookingId = Bookings.Count + 1,
+                RoomId = getRoomById(booking.RoomId),
+                CustomerId = getCustomerById(booking.CustomerId),
+                CheckInDate = currentCheckIn,
+                CheckOutDate = currentCheckOut,
+                IsRecurring = true,
+                RecurrenceCount = null,
+                RecurrenceType = null,
+                SpecialRequests = booking.SpecialRequests.Select(r => new SpecialRequest
+                {
+                    RequestId = r.RequestId,
+                    Description = r.Description
+                }).ToList()
+            };
+
+            Bookings.Add(newBooking);
         }
     }
 
@@ -92,11 +131,25 @@ public class BookingServiceImpl : IBookingService
 
     private bool IsOverlappingBooking(int roomId, DateTime checkIn, DateTime checkOut)
     {
+        
         return Bookings.Any(b =>
             b.RoomId.RoomId == roomId &&
             b.CheckInDate < checkOut &&
             b.CheckOutDate > checkIn
         );
+    }
+
+
+    private Room getRoomById(int roomId)
+    {
+        List<Room> rooms = _roomService.GetAll();
+        return rooms.FirstOrDefault(room => room.RoomId == roomId);
+    }
+
+    private Customer getCustomerById(int CustomerId)
+    {
+        List<Customer> customers = _customerService.GetAll();
+        return customers.FirstOrDefault(customer => customer.CustomerId == CustomerId);
     }
 
 }

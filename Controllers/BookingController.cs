@@ -1,6 +1,8 @@
 using HotelBookingAPI.model;
 using HotelBookingAPI.Service.BookingService;
 using Microsoft.AspNetCore.Mvc;
+using Hotel_Booking_App.Dto;
+
 
 namespace HotelBookingAPI.Controllers
 {
@@ -26,7 +28,7 @@ namespace HotelBookingAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Add(Booking booking)
+        public IActionResult Add(CreateBookingDTO booking)
         {
             _bookingService.Add(booking);
             return Ok(booking);

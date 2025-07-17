@@ -1,4 +1,5 @@
-﻿using HotelBookingAPI.model;
+﻿using Hotel_Booking_App.Dto;
+using HotelBookingAPI.model;
 
 namespace HotelBookingAPI.Service.BookingService
 {
@@ -6,7 +7,7 @@ namespace HotelBookingAPI.Service.BookingService
     {
         List<Booking> GetAll();
         Booking? GetById(int id);
-        void Add(Booking booking);
+        void Add(CreateBookingDTO booking);
         void Delete(int id);
         List<Booking> GetByCheckInDateRange(DateTime? startDate, DateTime? endDate);
     }
