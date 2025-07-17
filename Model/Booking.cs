@@ -6,8 +6,11 @@ namespace HotelBookingAPI.model
         public int BookingId { get; set; }
 
         // Replace RoomId and CustomerId with object references
+<<<<<<< HEAD
         public Room RoomId { get; set; }
         public Customer CustomerId { get; set; }
+=======
+>>>>>>> 17fe8e6 (Added DTOs)
 
         public DateTime CheckInDate { get; set; }
         public DateTime CheckOutDate { get; set; }
