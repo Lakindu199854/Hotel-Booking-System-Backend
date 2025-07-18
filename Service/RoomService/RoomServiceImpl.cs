@@ -6,11 +6,11 @@ namespace HotelBookingAPI.Service.RoomService;
 
 public class RoomServiceImpl : IRoomService
 {
-    private readonly IBookingReaderService _bookingService;
+    private readonly IServiceProvider _provider;
 
-    public RoomServiceImpl(IBookingReaderService bookingService)
+    public RoomServiceImpl(IServiceProvider provider)
     {
-        _bookingService = bookingService;
+        _provider = provider;
     }
 
     public List<Room> Rooms { get; set; } = new()
@@ -29,7 +29,8 @@ public class RoomServiceImpl : IRoomService
 
     public List<Room> GetAvailableRoomsByDateRange(DateTime checkIn, DateTime checkOut)
     {
-        var allBookings = _bookingService.GetAll();
+        var bookingService = _provider.GetRequiredService<IBookingService>();
+        var allBookings = bookingService.GetAll();
 
         var bookedRoomIds = allBookings
             .Where(b =>

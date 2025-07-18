@@ -1,13 +1,15 @@
 ﻿using HotelBookingAPI.model;
 using Hotel_Booking_App.Dto;
 using HotelBookingAPI.Service.RoomService;
+using HotelBookingAPI.Service.BookingService;
 using HotelBookingAPI.Service.CustomerService;
+
 
 namespace HotelBookingAPI.Service.BookingService;
 
 
 
-public class BookingServiceImpl : IBookingService,IBookingReaderService
+public class BookingServiceImpl : IBookingService
 {
 
     private readonly IRoomService _roomService;
