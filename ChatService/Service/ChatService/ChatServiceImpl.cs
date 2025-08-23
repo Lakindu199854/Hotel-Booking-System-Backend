@@ -1,19 +1,11 @@
-﻿namespace Hotel_Booking_App.Service.ChatService
+﻿namespace ChatService.Service.ChatService
 {
-    using HotelBookingAPI.model;
-    using HotelBookingAPI.Service.BookingService;
-    using HotelBookingAPI.Service.RoomService;
     using System.Text.RegularExpressions;
 
-    public class ChatServiceImpl : ChatService
+    public class ChatServiceImpl : IChatService
     {
-        private readonly IBookingService _bookingService;
-        private readonly IRoomService _roomService;
-
-        public ChatServiceImpl(IBookingService bookingService, IRoomService roomService)
+        public ChatServiceImpl()
         {
-            _bookingService = bookingService;
-            _roomService = roomService;
         }
 
         public string GetResponse(string userMessage)
@@ -23,104 +15,52 @@
             // Option: Predict Availability
             if (input.Contains("predict") && input.Contains("availability"))
             {
-                string extractedDate = ExtractDateFromInput(userMessage);
-                if (DateTime.TryParse(extractedDate, out var date))
-                {
-                    var prediction = PredictAvailabilityAndPrice(date);
-                    return $"For {date:yyyy-MM-dd}, expected availability is **{prediction.Availability}** and price trend is **{prediction.PriceTrend}**.";
-                }
-
-                return "Please enter a valid date in the format YYYY-MM-DD to predict availability.";
+                 return "Predicting availability is not yet implemented in this service.";
             }
 
             // Option: Check Available Rooms
             if (input.Contains("available rooms"))
             {
-                string extractedDate = ExtractDateFromInput(userMessage);
-                if (DateTime.TryParse(extractedDate, out var date))
-                {
-                    return GetRoomAvailabilityByType(date);
-                }
-
-                return "Please enter a valid date in the format YYYY-MM-DD to check available rooms.";
+                return "Checking available rooms is not yet implemented in this service.";
             }
 
             // Option: Check-in time
             if (input.Contains("check-in"))
             {
-                return "Check-in time is from 2 PM onward. Check-out is before 12 PM.";
+                return "Standard check-in time is at 2:00 PM.";
             }
 
-            return "I'm not sure how to help with that. You can ask me things like";
-                   
-        }
+            // Option: Check-out time
+            if (input.Contains("check-out"))
+            {
+                return "Standard check-out time is at 12:00 PM.";
+            }
 
-        // -----------------------------
-        // Helper Methods
-        // -----------------------------
+            // Option: Contact
+            if (input.Contains("contact") || input.Contains("help"))
+            {
+                return "For assistance, please call our support at +123456789.";
+            }
+
+            // Default response
+            return "I'm sorry, I don't understand. You can ask about 'available rooms', 'check-in time', or 'contact'.";
+        }
 
         private string ExtractDateFromInput(string input)
         {
-            var match = Regex.Match(input, @"\d{4}-\d{2}-\d{2}");
-            return match.Success ? match.Value : null;
+            var datePattern = @"\d{4}-\d{2}-\d{2}";
+            var match = Regex.Match(input, datePattern);
+            return match.Success ? match.Value : string.Empty;
+        }
+
+        private string GetRoomAvailabilityByType(DateTime date)
+        {
+            return $"Checking for rooms on {date:yyyy-MM-dd} is not implemented yet.";
         }
 
         private (string Availability, string PriceTrend) PredictAvailabilityAndPrice(DateTime date)
         {
-            if (IsHoliday(date))
-                return ("Very Low", "Very High");
-
-            if (IsWeekend(date))
-                return ("Low", "High");
-
-            if (IsOffSeason(date))
-                return ("High", "Low");
-
-            return ("Moderate", "Stable");
-        }
-
-        private bool IsWeekend(DateTime date) =>
-            date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
-
-        private bool IsHoliday(DateTime date)
-        {
-            var holidays = new List<DateTime>
-            {
-                new DateTime(2025, 12, 25),
-                new DateTime(2025, 12, 31),
-                new DateTime(2025, 4, 14)
-            };
-
-            return holidays.Contains(date.Date);
-        }
-
-        private bool IsOffSeason(DateTime date) =>
-            date.Month == 6 || date.Month == 7;
-
-        private string GetRoomAvailabilityByType(DateTime date)
-        {
-            List<Room> allRooms = _roomService.GetAll();
-            var bookings = _bookingService.GetAll();
-
-            var bookedRoomIds = bookings
-                .Where(b => b.CheckInDate < date && b.CheckOutDate > date)
-                .Select(b => b.RoomId.RoomId)
-                .ToList();
-
-            var availableRooms = allRooms
-                .Where(room => !bookedRoomIds.Contains(room.RoomId))
-                .GroupBy(r => r.RoomType)
-                .Select(g => new
-                {
-                    RoomType = g.Key,
-                    Count = g.Count()
-                });
-
-            if (!availableRooms.Any())
-                return $"No rooms are available on {date:yyyy-MM-dd}.";
-
-            var resultLines = availableRooms.Select(r => $"{r.RoomType}: {r.Count}");
-            return $"Available rooms for {date:yyyy-MM-dd}:\n" + string.Join("\n", resultLines);
+            return ("N/A", "N/A");
         }
     }
 }

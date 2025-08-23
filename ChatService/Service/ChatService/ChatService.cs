@@ -1,8 +1,7 @@
-﻿namespace Hotel_Booking_App.Service.ChatService
+﻿namespace ChatService.Service.ChatService
 {
-    public interface ChatService
+    public interface IChatService
     {
         string GetResponse(string userMessage);
     }
-
 }
