@@ -1,6 +1,6 @@
-﻿using HotelBookingAPI.model;
+﻿using BookingService.Model;
 
-namespace HotelBookingAPI.Service.CustomerService;
+namespace BookingService.Service.CustomerService;
 
 public interface ICustomerService
 {

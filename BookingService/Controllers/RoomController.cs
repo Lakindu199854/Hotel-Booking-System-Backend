@@ -1,9 +1,10 @@
-using HotelBookingAPI.model;
-using HotelBookingAPI.Service.RoomService;
+using BookingService.Dto;
+using BookingService.Model;
+using BookingService.Service.RoomService;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace HotelBookingAPI.Controllers
+namespace BookingService.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -29,10 +30,15 @@ namespace HotelBookingAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Add(Room room)
+        public IActionResult Add(CreateRoomDto roomDto)
         {
-            _roomService.Add(room);
-               return Ok(room);
+            var newRoom = new Room
+            {
+                RoomNumber = roomDto.RoomNumber,
+                RoomType = roomDto.RoomType
+            };
+            _roomService.Add(newRoom);
+            return Ok(newRoom);
         }
 
         [HttpDelete("{id}")]

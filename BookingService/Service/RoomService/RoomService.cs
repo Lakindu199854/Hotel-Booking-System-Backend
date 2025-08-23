@@ -1,5 +1,5 @@
-﻿using HotelBookingAPI.model;
-namespace HotelBookingAPI.Service.RoomService;
+﻿using BookingService.Model;
+namespace BookingService.Service.RoomService;
 
 public interface IRoomService
 {

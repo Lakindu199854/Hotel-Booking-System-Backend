@@ -1,6 +1,6 @@
-﻿using HotelBookingAPI.model;
+﻿using BookingService.Model;
 
-namespace Hotel_Booking_App.Dto;
+namespace BookingService.Dto;
 public class CreateBookingDTO
 {
     public int RoomId { get; set; }

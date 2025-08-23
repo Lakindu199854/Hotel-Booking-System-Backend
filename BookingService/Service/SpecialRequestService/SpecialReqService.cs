@@ -1,6 +1,6 @@
-﻿using HotelBookingAPI.model;
+﻿using BookingService.Model;
 
-namespace HotelBookingAPI.Service.SpecialRequestService;
+namespace BookingService.Service.SpecialRequestService;
 
 public interface ISpecialRequestService
 {

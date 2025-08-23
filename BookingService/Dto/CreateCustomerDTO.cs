@@ -1,5 +1,14 @@
-﻿//namespace Hotel_Booking_App.Dto;
-//public class ChatResponseDto
-//{
-//    public string Response { get; set; }
-//}
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace BookingService.Dto
+{
+    public class CreateCustomerDto
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Phone { get; set; }
+    }
+}

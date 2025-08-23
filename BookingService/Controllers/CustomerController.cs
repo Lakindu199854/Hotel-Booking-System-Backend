@@ -1,8 +1,9 @@
-using HotelBookingAPI.model;
-using HotelBookingAPI.Service.CustomerService;
+using BookingService.Dto;
+using BookingService.Model;
+using BookingService.Service.CustomerService;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HotelBookingAPI.Controllers
+namespace BookingService.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -26,10 +27,16 @@ namespace HotelBookingAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Add(Customer customer)
+        public IActionResult Add(CreateCustomerDto customerDto)
         {
-            _customerService.Add(customer);
-            return Ok(customer);
+            var newCustomer = new Customer
+            {
+                Name = customerDto.Name,
+                Email = customerDto.Email,
+                Phone = customerDto.Phone
+            };
+            _customerService.Add(newCustomer);
+            return Ok(newCustomer);
         }
     }
 }

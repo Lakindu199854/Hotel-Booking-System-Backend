@@ -1,8 +1,8 @@
-using HotelBookingAPI.model;
-using HotelBookingAPI.Service.SpecialRequestService;
+using BookingService.Model;
+using BookingService.Service.SpecialRequestService;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HotelBookingAPI.Controllers
+namespace BookingService.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

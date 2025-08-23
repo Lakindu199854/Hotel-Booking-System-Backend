@@ -1,10 +1,10 @@
-using HotelBookingAPI.model;
-using HotelBookingAPI.Service.BookingService;
+using BookingService.Model;
+using BookingService.Service.BookingService;
 using Microsoft.AspNetCore.Mvc;
-using Hotel_Booking_App.Dto;
+using BookingService.Dto;
 
 
-namespace HotelBookingAPI.Controllers
+namespace BookingService.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

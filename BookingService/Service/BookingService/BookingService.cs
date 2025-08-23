@@ -1,7 +1,7 @@
-﻿using Hotel_Booking_App.Dto;
-using HotelBookingAPI.model;
+﻿using BookingService.Dto;
+using BookingService.Model;
 
-namespace HotelBookingAPI.Service.BookingService
+namespace BookingService.Service.BookingService
 {
     public interface IBookingService
     {
