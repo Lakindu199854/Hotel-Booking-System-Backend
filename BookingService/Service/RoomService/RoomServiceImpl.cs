@@ -1,43 +1,51 @@
-﻿using HotelBookingAPI.model;
-using HotelBookingAPI.Service.BookingService;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using BookingService.Model;
+using BookingService.Data;
+using Microsoft.EntityFrameworkCore;
 
-namespace HotelBookingAPI.Service.RoomService;
-
-
-public class RoomServiceImpl : IRoomService
+namespace BookingService.Service.RoomService
 {
-    private readonly IServiceProvider _provider;
-
-    public RoomServiceImpl(IServiceProvider provider)
+    public class RoomServiceImpl : IRoomService
     {
-        _provider = provider;
-    }
+        private readonly BookingDbContext _context;
 
-    public List<Room> Rooms { get; set; } = new()
-    {
-        new Room { RoomId = 1, RoomNumber = "101", RoomType = "Single" ,IsOccupied=false},
-        new Room { RoomId = 2, RoomNumber = "102", RoomType = "Double" ,IsOccupied=false}
-    };
+        public RoomServiceImpl(BookingDbContext context)
+        {
+            _context = context;
+        }
 
-    public List<Room> GetAll() => Rooms;
+        public List<Room> GetAll() => _context.Rooms.ToList();
 
-    public Room? GetById(int id) => Rooms.FirstOrDefault(r => r.RoomId == id);
+        public Room? GetById(int id) => _context.Rooms.FirstOrDefault(r => r.RoomId == id);
 
-    public void Add(Room room) => Rooms.Add(room);
+        public void Add(Room room)
+        {
+            _context.Rooms.Add(room);
+            _context.SaveChanges();
+        }
 
-    public void Delete(int id) => Rooms.RemoveAll(r => r.RoomId == id);
+        public void Delete(int id)
+        {
+            var room = _context.Rooms.FirstOrDefault(r => r.RoomId == id);
+            if (room != null)
+            {
+                _context.Rooms.Remove(room);
+                _context.SaveChanges();
+            }
+        }
 
-    public List<Room> GetAvailableRoomsByDateRange(DateTime checkIn, DateTime checkOut)
-    {
-        var bookingService = _provider.GetRequiredService<IBookingService>();
-        var allBookings = bookingService.GetAll();
+        public List<Room> GetAvailableRoomsByDateRange(DateTime checkIn, DateTime checkOut)
+        {
+            var bookedRoomIds = _context.Bookings
+                .Where(b => !(b.CheckOutDate <= checkIn || b.CheckInDate >= checkOut))
+                .Select(b => b.RoomId)
+                .ToHashSet();
 
-        var bookedRoomIds = allBookings
-            .Where(b =>
-                !(b.CheckOutDate <=checkIn || b.CheckInDate >= checkOut)) // overlaps
-            .Select(b => b.RoomId.RoomId)
-            .ToHashSet();
-
-        return Rooms.Where(r => !bookedRoomIds.Contains(r.RoomId)).ToList();
+            return _context.Rooms
+                .Where(r => !bookedRoomIds.Contains(r.RoomId))
+                .ToList();
+        }
     }
 }

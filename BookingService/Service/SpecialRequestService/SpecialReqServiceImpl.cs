@@ -1,20 +1,36 @@
-﻿using HotelBookingAPI.model;
-
-namespace HotelBookingAPI.Service.SpecialRequestService;
-
-public class SpecialRequestServiceImpl : ISpecialRequestService
+﻿using System.Collections.Generic;
+using System.Linq;
+using BookingService.Model;
+using BookingService.Data;
+namespace BookingService.Service.SpecialRequestService
 {
-    public List<SpecialRequest> specialReqList = new()
+    public class SpecialReqServiceImpl : ISpecialRequestService
     {
-        new SpecialRequest { RequestId = 1, Description = "Airport Pick Up" },
-        new SpecialRequest { RequestId = 2, Description = "Extra Pillow" }
-    };
+        private readonly BookingDbContext _context;
 
-    public List<SpecialRequest> GetAll() => specialReqList;
+        public SpecialReqServiceImpl(BookingDbContext context)
+        {
+            _context = context;
+        }
 
-    public SpecialRequest? GetById(int id) => specialReqList.FirstOrDefault(r => r.RequestId == id);
+        public List<SpecialRequest> GetAll() => _context.SpecialRequests.ToList();
 
-    public void Add(SpecialRequest req) => specialReqList.Add(req);
+        public SpecialRequest? GetById(int id) => _context.SpecialRequests.FirstOrDefault(r => r.RequestId == id);
 
-    public void Delete(int id) => specialReqList.RemoveAll(r => r.RequestId == id);
+        public void Add(SpecialRequest req)
+        {
+            _context.SpecialRequests.Add(req);
+            _context.SaveChanges();
+        }
+
+        public void Delete(int id)
+        {
+            var req = _context.SpecialRequests.FirstOrDefault(r => r.RequestId == id);
+            if (req != null)
+            {
+                _context.SpecialRequests.Remove(req);
+                _context.SaveChanges();
+            }
+        }
+    }
 }

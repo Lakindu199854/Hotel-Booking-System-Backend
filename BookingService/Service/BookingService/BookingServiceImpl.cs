@@ -1,122 +1,154 @@
-﻿using HotelBookingAPI.model;
-using Hotel_Booking_App.Dto;
-using HotelBookingAPI.Service.RoomService;
-using HotelBookingAPI.Service.BookingService;
-using HotelBookingAPI.Service.CustomerService;
+﻿
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using BookingService.Model;
+using BookingService.Data;
+using BookingService.Dto;
+using BookingService.Service.RoomService;
+using BookingService.Service.CustomerService;
+using Microsoft.EntityFrameworkCore;
 
-
-namespace HotelBookingAPI.Service.BookingService;
-
-
-
-public class BookingServiceImpl : IBookingService
+namespace BookingService.Service.BookingService
 {
-
-    private readonly IRoomService _roomService;
-    private readonly ICustomerService _customerService;
-
-
-
-    private List<Booking> Bookings = new();
-
-    public List<Booking> GetAll() => Bookings;
-
-    public Booking? GetById(int id) => Bookings.FirstOrDefault(b => b.BookingId == id);
-
-    public BookingServiceImpl(IRoomService roomService, ICustomerService customerService)
+    public class BookingServiceImpl : IBookingService
     {
-        _roomService = roomService;
-        _customerService = customerService;
-    }
+        private readonly BookingDbContext _context;
+        private readonly IRoomService _roomService;
+        private readonly ICustomerService _customerService;
 
-    public void Add(CreateBookingDTO booking)
-    {
-        if (booking.IsRecurring && booking.RecurrenceCount.HasValue && !string.IsNullOrEmpty(booking.RecurrenceType))
+        public BookingServiceImpl(BookingDbContext context, IRoomService roomService, ICustomerService customerService)
         {
-            var currentCheckIn = booking.CheckInDate;
-            var currentCheckOut = booking.CheckOutDate;
+            _context = context;
+            _roomService = roomService;
+            _customerService = customerService;
+        }
 
-            for (int i = 0; i < booking.RecurrenceCount.Value; i++)
+
+        public List<Booking> GetAll() => _context.Bookings.Include(b => b.Room).Include(b => b.Customer).Include(b => b.SpecialRequests).ToList();
+
+        public Booking? GetById(int id) => _context.Bookings.Include(b => b.Room).Include(b => b.Customer).Include(b => b.SpecialRequests).FirstOrDefault(b => b.BookingId == id);
+
+        public void Add(CreateBookingDTO booking)
+        {
+            if (booking.IsRecurring && booking.RecurrenceCount.HasValue && !string.IsNullOrEmpty(booking.RecurrenceType))
             {
-                // Check for overlap before adding
-                if (IsOverlappingBooking(booking.RoomId, currentCheckIn, currentCheckOut))
+                var currentCheckIn = booking.CheckInDate;
+                var currentCheckOut = booking.CheckOutDate;
+
+                for (int i = 0; i < booking.RecurrenceCount.Value; i++)
                 {
-                    throw new InvalidOperationException($"Room {booking.RoomId} is already booked between {currentCheckIn} and {currentCheckOut}");
+                    if (IsOverlappingBooking(booking.RoomId, currentCheckIn, currentCheckOut))
+                    {
+                        throw new InvalidOperationException($"Room {booking.RoomId} is already booked between {currentCheckIn} and {currentCheckOut}");
+                    }
+
+                    var newBooking = new Booking
+                    {
+                        RoomId = booking.RoomId,
+                        CustomerId = booking.CustomerId,
+                        CheckInDate = currentCheckIn,
+                        CheckOutDate = currentCheckOut,
+                        IsRecurring = true,
+                        RecurrenceCount = null,
+                        RecurrenceType = null,
+                        SpecialRequests = booking.SpecialRequests.Select(r => new SpecialRequest
+                        {
+                            Description = r.Description
+                        }).ToList()
+                    };
+
+                    _context.Bookings.Add(newBooking);
+                    _context.SaveChanges();
+
+                    switch (booking.RecurrenceType.ToLower())
+                    {
+                        case "daily":
+                            currentCheckIn = currentCheckIn.AddDays(1);
+                            currentCheckOut = currentCheckOut.AddDays(1);
+                            break;
+                        case "weekly":
+                            currentCheckIn = currentCheckIn.AddDays(7);
+                            currentCheckOut = currentCheckOut.AddDays(7);
+                            break;
+                        case "monthly":
+                            currentCheckIn = currentCheckIn.AddMonths(1);
+                            currentCheckOut = currentCheckOut.AddMonths(1);
+                            break;
+                        default:
+                            throw new ArgumentException("Invalid recurrence type.");
+                    }
+                }
+            }
+            else
+            {
+                if (IsOverlappingBooking(booking.RoomId, booking.CheckInDate, booking.CheckOutDate))
+                {
+                    throw new InvalidOperationException($"Room {booking.RoomId} is already booked between {booking.CheckInDate} and {booking.CheckOutDate}");
                 }
 
                 var newBooking = new Booking
                 {
-                    BookingId = Bookings.Count + 1,
-                    RoomId = getRoomById(booking.RoomId),
-                    CustomerId = getCustomerById(booking.CustomerId),
-                    CheckInDate = currentCheckIn,
-                    CheckOutDate = currentCheckOut,
-                    IsRecurring = true,
+                    RoomId = booking.RoomId,
+                    CustomerId = booking.CustomerId,
+                    CheckInDate = booking.CheckInDate,
+                    CheckOutDate = booking.CheckOutDate,
+                    IsRecurring = false,
                     RecurrenceCount = null,
                     RecurrenceType = null,
                     SpecialRequests = booking.SpecialRequests.Select(r => new SpecialRequest
                     {
-                        RequestId = r.RequestId,
                         Description = r.Description
                     }).ToList()
                 };
 
-                Bookings.Add(newBooking);
-
-                // Move dates forward
-                switch (booking.RecurrenceType.ToLower())
-                {
-                    case "daily":
-                        currentCheckIn = currentCheckIn.AddDays(1);
-                        currentCheckOut = currentCheckOut.AddDays(1);
-                        break;
-                    case "weekly":
-                        currentCheckIn = currentCheckIn.AddDays(7);
-                        currentCheckOut = currentCheckOut.AddDays(7);
-                        break;
-                    case "monthly":
-                        currentCheckIn = currentCheckIn.AddMonths(1);
-                        currentCheckOut = currentCheckOut.AddMonths(1);
-                        break;
-                    default:
-                        throw new ArgumentException("Invalid recurrence type.");
-                }
+                _context.Bookings.Add(newBooking);
+                _context.SaveChanges();
             }
         }
-        else
+
+        public void Delete(int id)
         {
-            // Single booking
-            if (IsOverlappingBooking(booking.RoomId, booking.CheckInDate, booking.CheckOutDate))
+            var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == id);
+            if (booking != null)
             {
-                throw new InvalidOperationException($"Room {booking.RoomId} is already booked between {booking.CheckInDate} and {booking.CheckOutDate}");
+                _context.Bookings.Remove(booking);
+                _context.SaveChanges();
             }
+        }
 
-            Customer cust=getCustomerById(booking.CustomerId);
-            Room room=getRoomById(booking.RoomId);
+        public List<Booking> GetByCheckInDateRange(DateTime? startDate, DateTime? endDate)
+        {
+            return _context.Bookings
+                .Where(b =>
+                    (!startDate.HasValue || b.CheckInDate >= startDate.Value) &&
+                    (!endDate.HasValue || b.CheckInDate <= endDate.Value))
+                .Include(b => b.Room)
+                .Include(b => b.Customer)
+                .Include(b => b.SpecialRequests)
+                .ToList();
+        }
 
-            var currentCheckIn = booking.CheckInDate;
-            var currentCheckOut = booking.CheckOutDate;
+        private bool IsOverlappingBooking(int roomId, DateTime checkIn, DateTime checkOut)
+        {
+            return _context.Bookings.Any(b =>
+                b.RoomId == roomId &&
+                b.CheckInDate < checkOut &&
+                b.CheckOutDate > checkIn
+            );
+        }
 
-            var newBooking = new Booking
-            {
-                BookingId = Bookings.Count + 1,
-                RoomId = getRoomById(booking.RoomId),
-                CustomerId = getCustomerById(booking.CustomerId),
-                CheckInDate = currentCheckIn,
-                CheckOutDate = currentCheckOut,
-                IsRecurring = true,
-                RecurrenceCount = null,
-                RecurrenceType = null,
-                SpecialRequests = booking.SpecialRequests.Select(r => new SpecialRequest
-                {
-                    RequestId = r.RequestId,
-                    Description = r.Description
-                }).ToList()
-            };
+        private Room getRoomById(int roomId)
+        {
+            return _roomService.GetById(roomId);
+        }
 
-            Bookings.Add(newBooking);
+        private Customer getCustomerById(int customerId)
+        {
+            return _customerService.GetById(customerId);
         }
     }
+}
 
 
 

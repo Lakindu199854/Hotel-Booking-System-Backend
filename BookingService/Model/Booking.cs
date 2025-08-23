@@ -1,13 +1,20 @@
 ﻿using System;
-namespace HotelBookingAPI.model
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+namespace BookingService.Model
 {
     public class Booking
     {
-        public int BookingId { get; set; }
+    [Key]
+    public int BookingId { get; set; }
 
-        // Replace RoomId and CustomerId with object references
-        public Room RoomId { get; set; }
-        public Customer CustomerId { get; set; }
+    [ForeignKey("Room")]
+    public int RoomId { get; set; }
+    public Room Room { get; set; }
+    [ForeignKey("Customer")]
+    public int CustomerId { get; set; }
+    public Customer Customer { get; set; }
         public DateTime CheckInDate { get; set; }
         public DateTime CheckOutDate { get; set; }
 
@@ -15,6 +22,6 @@ namespace HotelBookingAPI.model
         public int? RecurrenceCount { get; set; }
         public string? RecurrenceType { get; set; }
 
-        public List<SpecialRequest> SpecialRequests { get; set; } = new();
+    public List<SpecialRequest> SpecialRequests { get; set; } = new();
     }
 }

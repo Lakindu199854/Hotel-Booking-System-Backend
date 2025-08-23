@@ -1,4 +1,5 @@
-﻿namespace HotelBookingAPI.model
+﻿using System.ComponentModel.DataAnnotations;
+namespace BookingService.Model
 {
     public class Room
     {
@@ -6,7 +7,8 @@
         {
             IsOccupied = false;
         }
-        public int RoomId { get; set; }
+    [Key]
+    public int RoomId { get; set; }
         public string RoomNumber { get; set; } = string.Empty;
         public string RoomType { get; set; } = string.Empty;
         public Boolean IsOccupied { get; set; } = false;
