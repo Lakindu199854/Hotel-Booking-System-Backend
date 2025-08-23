@@ -1,16 +1,16 @@
-﻿namespace ChatService.Controllers
+﻿namespace Hotel_Booking_App.Controllers
 {
-    using ChatService.Dto;
-    using ChatService.Service.ChatService;
+    using Hotel_Booking_App.Dto;
+    using Hotel_Booking_App.Service.ChatService;
     using Microsoft.AspNetCore.Mvc;
 
     [ApiController]
     [Route("api/[controller]")]
     public class ChatController : ControllerBase
     {
-        private readonly IChatService _chatService;
+        private readonly ChatService _chatService;
 
-        public ChatController(IChatService chatService)
+        public ChatController(ChatService chatService)
         {
             _chatService = chatService;
         }
@@ -18,8 +18,12 @@
         [HttpPost]
         public ActionResult<ChatResponseDto> Chat([FromBody] ChatRequestDto request)
         {
-            var response = _chatService.GetResponse(request.Message);
-            return Ok(new ChatResponseDto { Response = response });
+            var responseText = _chatService.GetResponse(request.Message);
+            return Ok(new ChatResponseDto
+            {
+                Response = responseText
+            });
         }
     }
+
 }
